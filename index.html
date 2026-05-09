@@ -1,2194 +1,653 @@
-<!doctype html>
-<html lang="th">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการการเงินส่วนตัว (AomKunMai)</title>
-    <script src="/_sdk/element_sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@200;300;400;500;600;700&amp;display=swap"
-        rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* ... existing CSS styles ... */
-        body {
-            box-sizing: border-box;
-            font-family: 'Mitr', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100%;
-        }
-
-        html,
-        body {
-            height: 100%;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: calc(100% - 80px);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            color: #667eea;
-            margin: 0 0 10px 0;
-            font-size: 2.5rem;
-            font-weight: 600;
-        }
-
-        .header p {
-            color: #666;
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .nav-tab {
-            background: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-family: 'Mitr', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            color: #333;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .nav-tab:hover:not(.active) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            color: #667eea;
-            margin: 0 0 20px 0;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px;
-            border-radius: 15px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card.income {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .stat-card.expense {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-        }
-
-        .stat-card .icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .number {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .stat-card .label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-family: 'Mitr', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            cursor: pointer;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-family: 'Mitr', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #333;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .profile-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .profile-item {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .profile-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-color: #667eea;
-        }
-
-        .profile-item.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #764ba2;
-        }
-
-        .profile-item h3 {
-            margin: 0 0 5px 0;
-            font-size: 1.1rem;
-        }
-
-        .profile-item p {
-            margin: 0;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .transaction-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .transaction-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #667eea;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .transaction-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .transaction-item.income {
-            border-left-color: #38ef7d;
-        }
-
-        .transaction-item.expense {
-            border-left-color: #ff6b6b;
-        }
-
-        .transaction-item.active {
-            background: #e3e7f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .transaction-info {
-            flex: 1;
-        }
-
-        .transaction-info h4 {
-            margin: 0 0 5px 0;
-            font-size: 1rem;
-            color: #333;
-        }
-
-        .transaction-info p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .transaction-amount {
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-
-        .transaction-amount.income {
-            color: #38ef7d;
-        }
-
-        .transaction-amount.expense {
-            color: #ff6b6b;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.3;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .toast.show {
-            display: flex;
-        }
-
-        .toast.success {
-            border-left: 4px solid #4caf50;
-        }
-
-        .toast.error {
-            border-left: 4px solid #f44336;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: white;
-            font-size: 0.9rem;
-        }
-
-        .theme-preview {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .theme-option {
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .theme-option:hover {
-            transform: scale(1.05);
-        }
-
-        .theme-option.selected {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-
-        .theme-light {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .theme-dark {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-        }
-
-        .theme-green {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-
-        .limit-warning {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .limit-warning.show {
-            display: block;
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .radio-option {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .radio-option:hover {
-            border-color: #667eea;
-            background: #f8f9fa;
-        }
-
-        .radio-option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .radio-option input[type="radio"] {
-            display: none;
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .category-option {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .category-option:hover {
-            border-color: #667eea;
-            background: #f8f9fa;
-        }
-
-        .category-option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .user-selector {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .user-selector select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            font-family: 'Mitr', sans-serif;
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-        }
-
-        .knowledge-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .knowledge-card {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .knowledge-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-        }
-
-        .knowledge-card h3 {
-            color: #333;
-            margin: 15px 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .knowledge-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        .knowledge-icon i {
-            font-size: 1.8rem;
-            color: white;
-        }
-
-        .knowledge-list {
-            list-style: none;
-            padding: 0;
-            margin: 15px 0;
-        }
-
-        .knowledge-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
-            line-height: 1.6;
-        }
-
-        .knowledge-list li:last-child {
-            border-bottom: none;
-        }
-
-        .knowledge-list ol {
-            counter-reset: item;
-            list-style: none;
-            padding: 0;
-        }
-
-        .knowledge-card ol.knowledge-list {
-            counter-reset: step;
-        }
-
-        .knowledge-card ol.knowledge-list li {
-            counter-increment: step;
-            position: relative;
-            padding-left: 35px;
-        }
-
-        .knowledge-card ol.knowledge-list li:before {
-            content: counter(step);
-            position: absolute;
-            left: 0;
-            top: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .budget-visualization {
-            margin: 20px 0;
-        }
-
-        .budget-bar {
-            display: flex;
-            height: 50px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .budget-segment {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .budget-segment.needs {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            flex: 5;
-        }
-
-        .budget-segment.wants {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            flex: 3;
-        }
-
-        .budget-segment.savings {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            flex: 2;
-        }
-
-        .compound-demo {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .year-card {
-            flex: 1;
-            min-width: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            color: white;
-        }
-
-        .year-card .year {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .year-card .amount {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .warning-list li {
-            color: #d32f2f;
-        }
-
-        .warning-list li i {
-            margin-right: 8px;
-        }
-
-        .age-timeline {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .age-stage {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #e0e0e0;
-        }
-
-        .age-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .age-stage ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .age-stage ul li {
-            padding: 5px 0;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .age-stage ul li:before {
-            content: "✓";
-            color: #38ef7d;
-            margin-right: 8px;
-            font-weight: 600;
-        }
-
-        .investment-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .invest-item {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-
-        .invest-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .invest-item h4 {
-            margin: 10px 0;
-            font-size: 1rem;
-            color: #333;
-        }
-
-        .invest-item p {
-            font-size: 0.85rem;
-            color: #666;
-            margin: 8px 0;
-            line-height: 1.5;
-        }
-
-        .risk-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-
-        .risk-badge.medium {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
-        .risk-badge.high {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-        }
-
-        @media (max-width: 768px) {
-            .knowledge-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .compound-demo {
-                flex-direction: column;
-            }
-
-            .age-timeline {
-                grid-template-columns: 1fr;
-            }
-
-            .investment-options {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-    <style>
-        @view-transition {
-            navigation: auto;
-        }
-    </style>
-    <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
-</head>
-
-<body>
-    <div class="container">
-        <header class="header">
-            <h1 id="pageTitle">💰 aomkunmai</h1>
-            <p id="welcomeMessage">จัดการโปรไฟล์และรายรับรายจ่ายของคุณได้อย่างง่ายดาย (ออนไลน์)</p>
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  User, Wallet, GraduationCap, Users, Bell, Plus, UserPlus, 
+  Edit3, Save, X, Trash2, ArrowUp, ArrowDown, Scale, List, 
+  Receipt, Sun, Moon, PiggyBank, PieChart, ShieldAlert, 
+  Calculator, Banknotes, AlertCircle, HeartPulse, Landmark, 
+  Briefcase, TrendingUp, Info, CheckCircle, Clock
+} from 'lucide-react';
+
+const THEMES = {
+  light: { start: 'from-indigo-500', end: 'to-purple-600', text: 'text-indigo-600', bg: 'bg-indigo-500' },
+  dark: { start: 'from-slate-700', end: 'to-slate-900', text: 'text-slate-700', bg: 'bg-slate-700' },
+  green: { start: 'from-teal-500', end: 'to-emerald-500', text: 'text-teal-600', bg: 'bg-teal-500' }
+};
+
+const INCOME_CATEGORIES = ['เงินเดือน', 'โบนัส', 'ขายของ', 'ดอกเบี้ย', 'ลงทุน', 'อื่นๆ'];
+const EXPENSE_CATEGORIES = ['อาหาร', 'ค่าเดินทาง', 'ค่าบ้าน', 'ช้อปปิ้ง', 'สุขภาพ', 'บันเทิง', 'การศึกษา', 'อื่นๆ'];
+
+const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+// เปลี่ยน URL ชี้ไปที่ Node.js API ของเรา
+const API_URL = '/api'; 
+
+const useAppData = () => {
+  const [profiles, setProfiles] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+
+  // โหลดข้อมูลเริ่มต้นจาก API
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`${API_URL}?action=get_all`);
+      const json = await res.json();
+      if (json.isOk) {
+        setProfiles(json.data.filter(item => item.type === 'profile'));
+        setTransactions(json.data.filter(item => item.type === 'transaction'));
+      }
+    } catch (error) {
+      console.error("API Fetch Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // ฟังก์ชันตัวช่วยสำหรับการส่ง Request
+  const apiRequest = async (method, data) => {
+    const res = await fetch(API_URL, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    if (!json.isOk) throw new Error(json.error || 'API Request Failed');
+    return json;
+  };
+
+  return {
+    profiles,
+    transactions,
+    refreshData: fetchData,
+    addProfile: async (p) => {
+      const newData = { ...p, id: generateId(), type: 'profile', created_at: new Date().toISOString() };
+      await apiRequest('POST', newData);
+      setProfiles(prev => [...prev, newData]);
+    },
+    updateProfile: async (id, data) => {
+      const newData = { ...data, id, type: 'profile', updated_at: new Date().toISOString() };
+      await apiRequest('PUT', newData);
+      setProfiles(prev => prev.map(p => p.id === id ? { ...p, ...newData } : p));
+    },
+    deleteProfile: async (id) => {
+      await apiRequest('DELETE', { id, type: 'profile' });
+      setProfiles(prev => prev.filter(p => p.id !== id));
+    },
+    addTransaction: async (t) => {
+      const newData = { ...t, id: generateId(), type: 'transaction', created_at: new Date().toISOString() };
+      await apiRequest('POST', newData);
+      setTransactions(prev => [...prev, newData]);
+    },
+    updateTransaction: async (id, data) => {
+      const newData = { ...data, id, type: 'transaction' };
+      await apiRequest('PUT', newData);
+      setTransactions(prev => prev.map(t => t.id === id ? { ...t, ...newData } : t));
+    },
+    deleteTransaction: async (id) => {
+      await apiRequest('DELETE', { id, type: 'transaction' });
+      setTransactions(prev => prev.filter(t => t.id !== id));
+    }
+  };
+};
+
+const Toast = ({ show, message, type }) => {
+  if (!show) return null;
+  const isSuccess = type === 'success';
+  return (
+    <div className={`fixed bottom-8 right-8 bg-white p-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-bounce ${isSuccess ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'}`}>
+      {isSuccess ? <CheckCircle className="text-green-500 w-6 h-6" /> : <AlertCircle className="text-red-500 w-6 h-6" />}
+      <span className="font-medium text-slate-800">{message}</span>
+    </div>
+  );
+};
+
+const StatCard = ({ icon: Icon, value, label, variant = 'default', theme }) => {
+  let bgClass = `bg-gradient-to-br ${theme.start} ${theme.end}`;
+  if (variant === 'income') bgClass = 'bg-gradient-to-br from-teal-400 to-emerald-500';
+  if (variant === 'expense') bgClass = 'bg-gradient-to-br from-rose-400 to-red-500';
+
+  return (
+    <div className={`${bgClass} p-6 rounded-2xl text-white text-center shadow-lg transition-transform hover:-translate-y-1`}>
+      <div className="flex justify-center mb-3">
+        <Icon className="w-10 h-10 opacity-90" />
+      </div>
+      <div className="text-3xl font-bold mb-1">{value}</div>
+      <div className="text-sm opacity-90">{label}</div>
+    </div>
+  );
+};
+
+export default function App() {
+  const { profiles, transactions, addProfile, updateProfile, deleteProfile, addTransaction, updateTransaction, deleteTransaction } = useAppData();
+  
+  const [activeTab, setActiveTab] = useState('profile');
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [selectedUserId, setSelectedUserId] = useState('');
+  
+  const currentProfileTheme = profiles.find(p => p.id === selectedUserId)?.theme || 'light';
+  const activeTheme = THEMES[currentProfileTheme] || THEMES.light;
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+  };
+
+  const [profileForm, setProfileForm] = useState({ id: null, username: '', full_name: '', email: '', phone: '', bio: '', theme: 'light', notifications: true });
+  const [isConfirmDeleteProfile, setIsConfirmDeleteProfile] = useState(false);
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    if (!profileForm.username) return showToast('กรุณากรอกชื่อผู้ใช้', 'error');
+
+    try {
+      if (profileForm.id) {
+        await updateProfile(profileForm.id, profileForm);
+        showToast('แก้ไขโปรไฟล์สำเร็จ!');
+      } else {
+        if (profiles.length >= 999) return showToast('ถึงขีดจำกัดโปรไฟล์แล้ว', 'error');
+        await addProfile(profileForm);
+        showToast('สร้างโปรไฟล์สำเร็จ!');
+        resetProfileForm();
+      }
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  };
+
+  const handleEditProfile = (profile) => {
+    setProfileForm(profile);
+    window.scrollTo({ top: document.getElementById('profile-form-section').offsetTop, behavior: 'smooth' });
+  };
+
+  const handleDeleteProfile = async () => {
+    if (isConfirmDeleteProfile) {
+      try {
+        await deleteProfile(profileForm.id);
+        if (selectedUserId === profileForm.id) setSelectedUserId('');
+        showToast('ลบโปรไฟล์สำเร็จ!');
+        resetProfileForm();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+      setIsConfirmDeleteProfile(false);
+    } else {
+      setIsConfirmDeleteProfile(true);
+      setTimeout(() => setIsConfirmDeleteProfile(false), 3000);
+    }
+  };
+
+  const resetProfileForm = () => setProfileForm({ id: null, username: '', full_name: '', email: '', phone: '', bio: '', theme: 'light', notifications: true });
+
+  const [txForm, setTxForm] = useState({ id: null, transaction_type: 'income', amount: '', category: '', description: '', transaction_date: new Date().toISOString().split('T')[0] });
+  const [isConfirmDeleteTx, setIsConfirmDeleteTx] = useState(false);
+
+  const userTransactions = useMemo(() => transactions.filter(t => t.user_id === selectedUserId), [transactions, selectedUserId]);
+  const txStats = useMemo(() => {
+    const income = userTransactions.filter(t => t.transaction_type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+    const expense = userTransactions.filter(t => t.transaction_type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+    return { income, expense, balance: income - expense, total: userTransactions.length };
+  }, [userTransactions]);
+
+  const handleTxSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedUserId) return showToast('กรุณาเลือกผู้ใช้ก่อน', 'error');
+    if (!txForm.category) return showToast('กรุณาเลือกหมวดหมู่', 'error');
+    if (!txForm.amount || Number(txForm.amount) <= 0) return showToast('จำนวนเงินไม่ถูกต้อง', 'error');
+
+    const payload = { ...txForm, user_id: selectedUserId };
+    try {
+      if (txForm.id) {
+        await updateTransaction(txForm.id, payload);
+        showToast('แก้ไขรายการสำเร็จ!');
+      } else {
+        if (userTransactions.length >= 999) return showToast('ถึงขีดจำกัดรายการแล้ว', 'error');
+        await addTransaction(payload);
+      showToast('เพิ่มรายการสำเร็จ!');
+    }
+    resetTxForm();
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+};
+
+  const handleEditTx = (tx) => {
+    setTxForm(tx);
+    window.scrollTo({ top: document.getElementById('tx-form-section').offsetTop, behavior: 'smooth' });
+  };
+
+  const handleDeleteTx = async () => {
+    if (isConfirmDeleteTx) {
+      try {
+        await deleteTransaction(txForm.id);
+        showToast('ลบรายการสำเร็จ!');
+        resetTxForm();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+      setIsConfirmDeleteTx(false);
+    } else {
+      setIsConfirmDeleteTx(true);
+      setTimeout(() => setIsConfirmDeleteTx(false), 3000);
+    }
+  };
+
+  const resetTxForm = () => setTxForm({ id: null, transaction_type: 'income', amount: '', category: '', description: '', transaction_date: new Date().toISOString().split('T')[0] });
+
+  return (
+    <div className={`min-h-screen transition-colors duration-500 font-sans bg-gradient-to-br ${activeTheme.start} ${activeTheme.end} p-4 md:p-8`}>
+      <div className="max-w-6xl mx-auto min-h-[calc(100vh-6rem)] flex flex-col">
+        
+        {/* Header */}
+        <header className="bg-white p-8 rounded-3xl shadow-xl text-center mb-8">
+          <h1 className={`text-4xl font-bold mb-3 ${activeTheme.text}`}>💰 aomkunmai</h1>
+          <p className="text-slate-500 text-lg">ระบบจัดการรายรับรายจ่ายอย่างง่ายๆสไตล์เด็กม.35</p>
         </header>
-        <div class="nav-tabs"><button class="nav-tab active" data-tab="profile"> <i class="fas fa-user"></i>
-                จัดการโปรไฟล์ </button> <button class="nav-tab" data-tab="transactions"> <i class="fas fa-wallet"></i>
-                รายรับ-รายจ่าย </button> <button class="nav-tab" data-tab="knowledge"> <i
-                    class="fas fa-graduation-cap"></i> ความรู้ทางการเงิน </button>
-        </div><!-- Profile Tab -->
-        <div class="tab-content active" id="profileTab">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="number" id="totalProfiles">
-                        0
-                    </div>
-                    <div class="label">
-                        โปรไฟล์ทั้งหมด
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <div class="number" id="activeUsers">
-                        0
-                    </div>
-                    <div class="label">
-                        เปิดการแจ้งเตือน
-                    </div>
-                </div>
-            </div>
-            <div class="main-content">
-                <div class="card">
-                    <h2><i class="fas fa-users"></i> รายชื่อผู้ใช้</h2>
-                    <div class="limit-warning" id="profileLimitWarning"><i class="fas fa-exclamation-triangle"></i>
-                        คุณได้ถึงขีดจำกัด 999 โปรไฟล์แล้ว
-                    </div><button class="btn" id="newProfileBtn"> <i class="fas fa-plus"></i> สร้างโปรไฟล์ใหม่ </button>
-                    <div class="profile-list" id="profileList">
-                        <div class="empty-state">
-                            <span class="loading"
-                                style="border-color: #667eea; border-top-color: transparent; width: 30px; height: 30px;"></span>
-                            <p>กำลังโหลดข้อมูล...</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2 id="profileFormTitle"><i class="fas fa-user-edit"></i> สร้างโปรไฟล์ใหม่</h2>
-                    <form id="profileForm">
-                        <div class="form-group"><label for="username">ชื่อผู้ใช้ <span
-                                    style="color: red;">*</span></label> <input type="text" id="username"
-                                name="username" placeholder="ใส่ชื่อผู้ใช้" required>
-                        </div>
-                        <div class="form-group"><label for="fullName">ชื่อ-นามสกุล</label> <input type="text"
-                                id="fullName" name="fullName" placeholder="ชื่อจริงของคุณ">
-                        </div>
-                        <div class="form-group"><label for="email">อีเมล</label> <input type="email" id="email"
-                                name="email" placeholder="example@email.com">
-                        </div>
-                        <div class="form-group"><label for="phone">เบอร์โทรศัพท์</label> <input type="tel" id="phone"
-                                name="phone" placeholder="08X-XXX-XXXX">
-                        </div>
-                        <div class="form-group"><label for="bio">เกี่ยวกับคุณ</label> <textarea id="bio" name="bio"
-                                placeholder="บอกเล่าเกี่ยวกับตัวคุณ..."></textarea>
-                        </div>
-                        <div class="form-group"><label>ธีมที่ต้องการ</label>
-                            <div class="theme-preview">
-                                <div class="theme-option theme-light selected" data-theme="light"><i
-                                        class="fas fa-sun"></i>
-                                    <p>สว่าง</p>
-                                </div>
-                                <div class="theme-option theme-dark" data-theme="dark"><i class="fas fa-moon"></i>
-                                    <p>มืด</p>
-                                </div>
-                                <div class="theme-option theme-green" data-theme="green"><i class="fas fa-leaf"></i>
-                                    <p>เขียว</p>
-                                </div>
-                            </div><input type="hidden" id="theme" name="theme" value="light">
-                        </div>
-                        <div class="form-group">
-                            <div class="checkbox-group"><input type="checkbox" id="notifications" name="notifications"
-                                    checked> <label for="notifications">เปิดการแจ้งเตือน</label>
-                            </div>
-                        </div>
-                        <div class="btn-group"><button type="submit" class="btn" id="profileSubmitBtn"> <i
-                                    class="fas fa-save"></i> บันทึก </button> <button type="button"
-                                class="btn btn-secondary" id="profileCancelBtn" style="display: none;"> <i
-                                    class="fas fa-times"></i> ยกเลิก </button> <button type="button"
-                                class="btn btn-danger" id="profileDeleteBtn" style="display: none;"> <i
-                                    class="fas fa-trash"></i> ลบโปรไฟล์ </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div><!-- Transactions Tab -->
-        <div class="tab-content" id="transactionsTab">
-            <div class="user-selector" id="userSelectorSection" style="display: none;"><label><i
-                        class="fas fa-user"></i> เลือกผู้ใช้:</label> <select id="userSelector">
-                    <option value="">-- กรุณาเลือกผู้ใช้ --</option>
-                </select>
-            </div>
-            <div class="stats-grid" id="transactionStats" style="display: none;">
-                <div class="stat-card income">
-                    <div class="icon">
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <div class="number" id="totalIncome">
-                        0
-                    </div>
-                    <div class="label">
-                        รายรับทั้งหมด (บาท)
-                    </div>
-                </div>
-                <div class="stat-card expense">
-                    <div class="icon">
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="number" id="totalExpense">
-                        0
-                    </div>
-                    <div class="label">
-                        รายจ่ายทั้งหมด (บาท)
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">
-                        <i class="fas fa-balance-scale"></i>
-                    </div>
-                    <div class="number" id="balance">
-                        0
-                    </div>
-                    <div class="label">
-                        ยอดคงเหลือ (บาท)
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">
-                        <i class="fas fa-list"></i>
-                    </div>
-                    <div class="number" id="totalTransactions">
-                        0
-                    </div>
-                    <div class="label">
-                        รายการทั้งหมด
-                    </div>
-                </div>
-            </div>
-            <div class="main-content" id="transactionContent" style="display: none;">
-                <div class="card">
-                    <h2><i class="fas fa-list"></i> รายการทั้งหมด</h2>
-                    <div class="limit-warning" id="transactionLimitWarning"><i class="fas fa-exclamation-triangle"></i>
-                        คุณได้ถึงขีดจำกัด 999 รายการแล้ว
-                    </div><button class="btn btn-success" id="newTransactionBtn"> <i class="fas fa-plus"></i>
-                        เพิ่มรายการใหม่ </button>
-                    <div class="transaction-list" id="transactionList">
-                        <div class="empty-state"><i class="fas fa-receipt"></i>
-                            <p>ยังไม่มีรายการ กดปุ่มด้านบนเพื่อเพิ่ม</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2 id="transactionFormTitle"><i class="fas fa-plus"></i> เพิ่มรายการใหม่</h2>
-                    <form id="transactionForm">
-                        <div class="form-group"><label>ประเภท <span style="color: red;">*</span></label>
-                            <div class="radio-group">
-                                <div class="radio-option selected" data-type="income"><input type="radio"
-                                        name="transactionType" value="income" checked> <i class="fas fa-arrow-up"
-                                        style="font-size: 1.5rem;"></i>
-                                    <p style="margin: 5px 0 0 0;">รายรับ</p>
-                                </div>
-                                <div class="radio-option" data-type="expense"><input type="radio" name="transactionType"
-                                        value="expense"> <i class="fas fa-arrow-down" style="font-size: 1.5rem;"></i>
-                                    <p style="margin: 5px 0 0 0;">รายจ่าย</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group"><label for="amount">จำนวนเงิน (บาท) <span
-                                    style="color: red;">*</span></label> <input type="number" id="amount" name="amount"
-                                placeholder="0.00" step="0.01" min="0" required>
-                        </div>
-                        <div class="form-group"><label>หมวดหมู่ <span style="color: red;">*</span></label>
-                            <div class="category-grid" id="categoryGrid">
-                                <!-- Categories will be populated by JavaScript -->
-                            </div><input type="hidden" id="category" name="category" value="">
-                        </div>
-                        <div class="form-group"><label for="description">รายละเอียด</label> <textarea id="description"
-                                name="description" placeholder="เพิ่มรายละเอียด..."></textarea>
-                        </div>
-                        <div class="form-group"><label for="transactionDate">วันที่ <span
-                                    style="color: red;">*</span></label> <input type="date" id="transactionDate"
-                                name="transactionDate" required>
-                        </div>
-                        <div class="btn-group"><button type="submit" class="btn" id="transactionSubmitBtn"> <i
-                                    class="fas fa-save"></i> บันทึก </button> <button type="button"
-                                class="btn btn-secondary" id="transactionCancelBtn" style="display: none;"> <i
-                                    class="fas fa-times"></i> ยกเลิก </button> <button type="button"
-                                class="btn btn-danger" id="transactionDeleteBtn" style="display: none;"> <i
-                                    class="fas fa-trash"></i> ลบรายการ </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="empty-state" id="noUserSelected"><i class="fas fa-user-circle"></i>
-                <h3>กรุณาสร้างโปรไฟล์ก่อน</h3>
-                <p>คุณต้องสร้างโปรไฟล์ผู้ใช้ก่อนจึงจะสามารถบันทึกรายรับรายจ่ายได้</p><button class="btn"
-                    onclick="switchTab('profile')"> <i class="fas fa-user-plus"></i> ไปสร้างโปรไฟล์ </button>
-            </div>
-        </div><!-- Knowledge Tab -->
-        <!-- ... existing code ... -->
-        <div class="tab-content" id="knowledgeTab">
-            <div class="card">
-                <h2><i class="fas fa-graduation-cap"></i> ความรู้พื้นฐานการบริหารเงิน</h2>
-                <p style="color: #666; margin-bottom: 30px;">แนวคิดและหลักการจัดการเงินที่ทุกคนควรรู้ จาก SET Investnow
-                </p>
-                <div class="knowledge-grid">
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><i
-                                class="fas fa-piggy-bank"></i>
-                        </div>
-                        <h3>หลัก 6 ขั้นตอน การวางแผนการเงิน</h3>
-                        <ol class="knowledge-list">
-                            <li><strong>วิเคราะห์สถานะการเงิน</strong> - ประเมินรายได้ รายจ่าย สินทรัพย์ และหนี้สิน
-                            </li>
-                            <li><strong>กำหนดเป้าหมาย</strong> - ตั้งเป้าหมายระยะสั้น กลาง และยาว</li>
-                            <li><strong>จัดลำดับความสำคัญ</strong> - เรียงลำดับเป้าหมายตามความจำเป็น</li>
-                            <li><strong>วางแผนการลงทุน</strong> - เลือกเครื่องมือที่เหมาะสม</li>
-                            <li><strong>ปฏิบัติตามแผน</strong> - ดำเนินการอย่างมีวินัย</li>
-                            <li><strong>ติดตามและปรับแผน</strong> - ประเมินผลและปรับเปลี่ยนตามสถานการณ์</li>
-                        </ol>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);"><i
-                                class="fas fa-chart-pie"></i>
-                        </div>
-                        <h3>หลัก 50/30/20 การแบ่งเงิน</h3>
-                        <div class="budget-visualization">
-                            <div class="budget-bar">
-                                <div class="budget-segment needs">
-                                    50%
-                                </div>
-                                <div class="budget-segment wants">
-                                    30%
-                                </div>
-                                <div class="budget-segment savings">
-                                    20%
-                                </div>
-                            </div>
-                        </div>
-                        <ul class="knowledge-list">
-                            <li><strong>50% ค่าใช้จ่ายจำเป็น</strong> - ค่าที่พัก อาหาร ค่าเดินทาง ค่าน้ำ-ไฟ</li>
-                            <li><strong>30% ค่าใช้จ่ายส่วนตัว</strong> - ความบันเทิง ช้อปปิ้ง ท่องเที่ยว</li>
-                            <li><strong>20% เงินออม-ลงทุน</strong> - เก็บออม กองทุนฉุกเฉิน ลงทุน</li>
-                        </ul>
-                        <p style="font-size: 0.9rem; color: #666; margin-top: 15px;"><i class="fas fa-lightbulb"></i>
-                            <em>สามารถปรับสัดส่วนได้ตามความเหมาะสม</em>
-                        </p>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"><i
-                                class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3>กองทุนฉุกเฉิน (Emergency Fund)</h3>
-                        <p><strong>ควรมีเท่าไหร่?</strong></p>
-                        <ul class="knowledge-list">
-                            <li><strong>คนโสด:</strong> 3-6 เดือนของค่าใช้จ่าย</li>
-                            <li><strong>มีครอบครัว:</strong> 6-12 เดือนของค่าใช้จ่าย</li>
-                            <li><strong>ธุรกิจส่วนตัว:</strong> 12 เดือนขึ้นไป</li>
-                        </ul>
-                        <div
-                            style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 4px solid #ffc107;">
-                            <p style="margin: 0; color: #856404;"><i class="fas fa-exclamation-triangle"></i>
-                                <strong>สำคัญ!</strong> เก็บไว้ในบัญชีที่เข้าถึงได้ง่าย
-                                ไม่ควรเอาไปลงทุนในสินทรัพย์เสี่ยง
-                            </p>
-                        </div>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"><i
-                                class="fas fa-calculator"></i>
-                        </div>
-                        <h3>กฎ 72 คำนวณเงินเพิ่มเป็น 2 เท่า</h3>
-                        <p>สูตร: <strong>72 ÷ อัตราผลตอบแทน (%) = จำนวนปี</strong></p>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0;">
-                            <p style="margin: 0 0 10px 0; color: #333;"><strong>ตัวอย่าง:</strong></p>
-                            <ul style="list-style: none; padding: 0; margin: 0;">
-                                <li style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><i
-                                        class="fas fa-arrow-right" style="color: #667eea;"></i> ผลตอบแทน 6% ต่อปี → 72 ÷
-                                    6 = <strong>12 ปี</strong></li>
-                                <li style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;"><i
-                                        class="fas fa-arrow-right" style="color: #667eea;"></i> ผลตอบแทน 8% ต่อปี → 72 ÷
-                                    8 = <strong>9 ปี</strong></li>
-                                <li style="padding: 8px 0;"><i class="fas fa-arrow-right" style="color: #667eea;"></i>
-                                    ผลตอบแทน 12% ต่อปี → 72 ÷ 12 = <strong>6 ปี</strong></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"><i
-                                class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <h3>พลังของดอกเบี้ยทบต้น</h3>
-                        <p>เงิน 10,000 บาท ลงทุนผลตอบแทน 7% ต่อปี</p>
-                        <div class="compound-demo">
-                            <div class="year-card">
-                                <div class="year">
-                                    10 ปี
-                                </div>
-                                <div class="amount">
-                                    19,672 บาท
-                                </div>
-                            </div>
-                            <div class="year-card">
-                                <div class="year">
-                                    20 ปี
-                                </div>
-                                <div class="amount">
-                                    38,697 บาท
-                                </div>
-                            </div>
-                            <div class="year-card">
-                                <div class="year">
-                                    30 ปี
-                                </div>
-                                <div class="amount">
-                                    76,123 บาท
-                                </div>
-                            </div>
-                        </div>
-                        <p style="font-size: 0.9rem; color: #666; margin-top: 15px;"><i class="fas fa-chart-line"></i>
-                            <strong>เริ่มเร็ว = เงินโตเร็ว!</strong> ยิ่งลงทุนเร็วยิ่งได้ประโยชน์มาก
-                        </p>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);"><i
-                                class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <h3>พฤติกรรมที่ควรหลีกเลี่ยง</h3>
-                        <ul class="knowledge-list warning-list">
-                            <li><i class="fas fa-times-circle"></i> ใช้จ่ายเกินตัว ไม่มีเงินออม</li>
-                            <li><i class="fas fa-times-circle"></i> กู้บัตรเครดิตไม่หมดทุกเดือน</li>
-                            <li><i class="fas fa-times-circle"></i> ไม่มีแผนการเงิน ใช้ไปวันๆ</li>
-                            <li><i class="fas fa-times-circle"></i> ลงทุนแบบเสี่ยงสูงโดยไม่มีความรู้</li>
-                            <li><i class="fas fa-times-circle"></i> ไม่มีประกันและกองทุนฉุกเฉิน</li>
-                            <li><i class="fas fa-times-circle"></i> ซื้อของผ่อน สินค้าฟุ่มเฟือย</li>
-                        </ul>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"><i
-                                class="fas fa-heartbeat"></i>
-                        </div>
-                        <h3>การวางแผนตามช่วงอายุ</h3>
-                        <div class="age-timeline">
-                            <div class="age-stage">
-                                <div class="age-badge">
-                                    20-30 ปี
-                                </div>
-                                <ul>
-                                    <li>สร้างวินัยการออม</li>
-                                    <li>สร้างกองทุนฉุกเฉิน</li>
-                                    <li>เริ่มลงทุนระยะยาว</li>
-                                </ul>
-                            </div>
-                            <div class="age-stage">
-                                <div class="age-badge">
-                                    30-40 ปี
-                                </div>
-                                <ul>
-                                    <li>เพิ่มการลงทุน</li>
-                                    <li>วางแผนครอบครัว</li>
-                                    <li>ซื้อประกันชีวิต</li>
-                                </ul>
-                            </div>
-                            <div class="age-stage">
-                                <div class="age-badge">
-                                    40-50 ปี
-                                </div>
-                                <ul>
-                                    <li>เร่งสะสมเงินเกษียณ</li>
-                                    <li>ปรับพอร์ตลดความเสี่ยง</li>
-                                    <li>วางแผนการศึกษาบุตร</li>
-                                </ul>
-                            </div>
-                            <div class="age-stage">
-                                <div class="age-badge">
-                                    50+ ปี
-                                </div>
-                                <ul>
-                                    <li>เน้นการลงทุนปลอดภัย</li>
-                                    <li>เตรียมเงินเกษียณ</li>
-                                    <li>วางแผนมรดก</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="knowledge-card">
-                        <div class="knowledge-icon"
-                            style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"><i
-                                class="fas fa-university"></i>
-                        </div>
-                        <h3>ช่องทางการลงทุนพื้นฐาน</h3>
-                        <div class="investment-options">
-                            <div class="invest-item low-risk">
-                                <div class="risk-badge">
-                                    ความเสี่ยงต่ำ
-                                </div>
-                                <h4><i class="fas fa-shield-alt"></i> เงินฝาก</h4>
-                                <p>ผลตอบแทน 0.5-2% ต่อปี<br>
-                                    เหมาะกับเงินฉุกเฉิน</p>
-                            </div>
-                            <div class="invest-item low-risk">
-                                <div class="risk-badge">
-                                    ความเสี่ยงต่ำ
-                                </div>
-                                <h4><i class="fas fa-landmark"></i> พันธบัตรรัฐบาล</h4>
-                                <p>ผลตอบแทน 1-3% ต่อปี<br>
-                                    ความเสี่ยงต่ำมาก</p>
-                            </div>
-                            <div class="invest-item medium-risk">
-                                <div class="risk-badge medium">
-                                    ความเสี่ยงปานกลาง
-                                </div>
-                                <h4><i class="fas fa-briefcase"></i> กองทุนรวม</h4>
-                                <p>ผลตอบแทน 3-8% ต่อปี<br>
-                                    บริหารโดยผู้เชี่ยวชาญ</p>
-                            </div>
-                            <div class="invest-item high-risk">
-                                <div class="risk-badge high">
-                                    ความเสี่ยงสูง
-                                </div>
-                                <h4><i class="fas fa-chart-line"></i> หุ้น</h4>
-                                <p>ผลตอบแทน 5-15%+ ต่อปี<br>
-                                    ต้องมีความรู้และติดตาม</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; margin-top: 30px; text-align: center;">
-                    <h3 style="margin: 0 0 15px 0; font-size: 1.5rem;"><i class="fas fa-rocket"></i> เริ่มต้นวันนี้!
-                    </h3>
-                    <p style="margin: 0; font-size: 1.1rem; opacity: 0.9;">การวางแผนการเงินไม่ยาก
-                        เริ่มจากการรู้จักรายรับรายจ่ายของตัวเอง<br>
-                        ตั้งเป้าหมาย และมีวินัยในการออมและลงทุน</p>
-                    <p style="margin: 15px 0 0 0; font-size: 0.9rem; opacity: 0.8;"><i class="fas fa-info-circle"></i>
-                        ข้อมูลจาก SET Investnow | <a href="https://www.set.or.th/th/education/investnow" target="_blank"
-                            rel="noopener noreferrer" style="color: white; text-decoration: underline;">
-                            เรียนรู้เพิ่มเติม </a></p>
-                </div>
-            </div>
+
+        {/* Navigation Tabs */}
+        <div className="flex justify-center gap-4 mb-8 flex-wrap">
+          {[
+            { id: 'profile', icon: User, label: 'จัดการโปรไฟล์' },
+            { id: 'transactions', icon: Wallet, label: 'รายรับ-รายจ่าย' },
+            { id: 'knowledge', icon: GraduationCap, label: 'ความรู้ทางการเงิน' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-md ${
+                activeTab === tab.id 
+                  ? `bg-gradient-to-r ${activeTheme.start} ${activeTheme.end} text-white shadow-lg -translate-y-1` 
+                  : 'bg-white text-slate-700 hover:-translate-y-1 hover:shadow-lg'
+              }`}
+            >
+              <tab.icon size={20} />
+              {tab.label}
+            </button>
+          ))}
         </div>
-        <footer class="footer" id="footerText">
-            © 2024 KUDSS M35 workingteam | Made with ❤️
+
+        {}
+        {activeTab === 'profile' && (
+          <div className="animate-fade-in space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <StatCard icon={Users} value={profiles.length} label="โปรไฟล์ทั้งหมด" theme={activeTheme} />
+              <StatCard icon={Bell} value={profiles.filter(p => p.notifications).length} label="เปิดการแจ้งเตือน" theme={activeTheme} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Profile List */}
+              <div className="lg:col-span-1 bg-white p-6 rounded-3xl shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className={`text-xl font-bold flex items-center gap-2 ${activeTheme.text}`}>
+                    <Users size={24} /> รายชื่อผู้ใช้
+                  </h2>
+                  <button onClick={resetProfileForm} disabled={profiles.length >= 999} className={`p-2 rounded-lg text-white bg-gradient-to-r ${activeTheme.start} ${activeTheme.end} disabled:opacity-50 hover:scale-105 transition-transform`}>
+                    <Plus size={20} />
+                  </button>
+                </div>
+                
+                {profiles.length >= 999 && (
+                  <div className="bg-amber-100 text-amber-800 p-3 rounded-xl mb-4 text-sm flex items-center gap-2">
+                    <AlertCircle size={16} /> คุณได้ถึงขีดจำกัด 999 โปรไฟล์แล้ว
+                  </div>
+                )}
+
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                  {profiles.length === 0 ? (
+                    <div className="text-center py-10 text-slate-400">
+                      <UserPlus size={48} className="mx-auto mb-3 opacity-30" />
+                      <p>ยังไม่มีโปรไฟล์ กดปุ่ม + เพื่อสร้าง</p>
+                    </div>
+                  ) : (
+                    profiles.map(p => (
+                      <div 
+                        key={p.id} 
+                        onClick={() => handleEditProfile(p)}
+                        className={`p-4 rounded-xl cursor-pointer transition-all border-2 ${profileForm.id === p.id ? `border-${activeTheme.bg.split('-')[1]}-500 bg-slate-50` : 'border-transparent bg-slate-100 hover:bg-slate-200'}`}
+                      >
+                        <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2"><User size={16}/> {p.username}</h3>
+                        <p className="text-slate-500 text-sm">{p.full_name || 'ไม่ระบุชื่อ'}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Profile Form */}
+              <div id="profile-form-section" className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-xl">
+                <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${activeTheme.text}`}>
+                  {profileForm.id ? <Edit3 size={28} /> : <UserPlus size={28} />} 
+                  {profileForm.id ? 'แก้ไขโปรไฟล์' : 'สร้างโปรไฟล์ใหม่'}
+                </h2>
+                
+                <form onSubmit={handleProfileSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">ชื่อผู้ใช้ <span className="text-red-500">*</span></label>
+                      <input type="text" required value={profileForm.username} onChange={e => setProfileForm({...profileForm, username: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all" placeholder="ใส่ชื่อผู้ใช้" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล</label>
+                      <input type="text" value={profileForm.full_name} onChange={e => setProfileForm({...profileForm, full_name: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all" placeholder="ชื่อจริงของคุณ" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">อีเมล</label>
+                      <input type="email" value={profileForm.email} onChange={e => setProfileForm({...profileForm, email: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all" placeholder="example@email.com" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">เบอร์โทรศัพท์</label>
+                      <input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all" placeholder="08X-XXX-XXXX" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">เกี่ยวกับคุณ</label>
+                    <textarea value={profileForm.bio} onChange={e => setProfileForm({...profileForm, bio: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all min-h-[100px]" placeholder="บอกเล่าเกี่ยวกับตัวคุณ..."></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-3">ธีมที่ต้องการ</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { id: 'light', icon: Sun, label: 'สว่าง', classes: 'from-indigo-500 to-purple-600' },
+                        { id: 'dark', icon: Moon, label: 'มืด', classes: 'from-slate-700 to-slate-900' },
+                        { id: 'green', icon: TrendingUp, label: 'เขียว', classes: 'from-teal-500 to-emerald-500' }
+                      ].map(t => (
+                        <div 
+                          key={t.id}
+                          onClick={() => setProfileForm({...profileForm, theme: t.id})}
+                          className={`p-4 rounded-xl text-center cursor-pointer border-4 transition-all text-white bg-gradient-to-br ${t.classes} ${profileForm.theme === t.id ? 'border-white shadow-xl scale-105' : 'border-transparent opacity-80 hover:opacity-100'}`}
+                        >
+                          <t.icon className="mx-auto mb-2" size={24} />
+                          <span className="font-medium">{t.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2">
+                    <input type="checkbox" id="noti" checked={profileForm.notifications} onChange={e => setProfileForm({...profileForm, notifications: e.target.checked})} className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                    <label htmlFor="noti" className="text-slate-700 font-medium cursor-pointer">เปิดการแจ้งเตือน</label>
+                  </div>
+
+                  <div className="pt-4 flex flex-wrap gap-3">
+                    <button type="submit" className={`flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold transition-transform hover:-translate-y-1 shadow-lg bg-gradient-to-r ${activeTheme.start} ${activeTheme.end}`}>
+                      <Save size={20} /> {profileForm.id ? 'บันทึกการแก้ไข' : 'บันทึกโปรไฟล์'}
+                    </button>
+                    {profileForm.id && (
+                      <>
+                        <button type="button" onClick={resetProfileForm} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition-colors">
+                          <X size={20} /> ยกเลิก
+                        </button>
+                        <button type="button" onClick={handleDeleteProfile} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition-colors ml-auto">
+                          {isConfirmDeleteProfile ? <><AlertCircle size={20} /> ยืนยันการลบ?</> : <><Trash2 size={20} /> ลบโปรไฟล์</>}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {}
+        {activeTab === 'transactions' && (
+          <div className="animate-fade-in space-y-6">
+            
+            {/* User Selector */}
+            <div className="bg-white p-6 rounded-3xl shadow-md flex flex-col md:flex-row items-center gap-4">
+              <label className="font-bold text-slate-700 flex items-center gap-2 whitespace-nowrap">
+                <User size={20} /> เลือกผู้ใช้เพื่อจัดการ:
+              </label>
+              <select 
+                value={selectedUserId} 
+                onChange={e => setSelectedUserId(e.target.value)}
+                className={`w-full md:w-auto flex-1 p-3 border-2 rounded-xl outline-none focus:ring-4 transition-all ${selectedUserId ? 'border-indigo-500 ring-indigo-500/20' : 'border-slate-300'}`}
+              >
+                <option value="">-- กรุณาเลือกผู้ใช้ --</option>
+                {profiles.map(p => (
+                  <option key={p.id} value={p.id}>{p.username} {p.full_name ? `(${p.full_name})` : ''}</option>
+                ))}
+              </select>
+            </div>
+
+            {!selectedUserId ? (
+              <div className="bg-white p-12 rounded-3xl shadow-xl text-center space-y-4">
+                <UserPlus size={64} className="mx-auto text-slate-300" />
+                <h3 className="text-2xl font-bold text-slate-700">กรุณาเลือกหรือสร้างโปรไฟล์ก่อน</h3>
+                <p className="text-slate-500">คุณต้องมีโปรไฟล์ก่อนจึงจะสามารถบันทึกรายรับรายจ่ายได้</p>
+                <button onClick={() => setActiveTab('profile')} className={`inline-flex items-center gap-2 px-6 py-3 mt-4 rounded-xl text-white font-bold shadow-lg transition-transform hover:-translate-y-1 bg-gradient-to-r ${activeTheme.start} ${activeTheme.end}`}>
+                   ไปสร้างโปรไฟล์
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StatCard icon={ArrowUp} value={txStats.income.toLocaleString()} label="รายรับทั้งหมด (บาท)" variant="income" theme={activeTheme} />
+                  <StatCard icon={ArrowDown} value={txStats.expense.toLocaleString()} label="รายจ่ายทั้งหมด (บาท)" variant="expense" theme={activeTheme} />
+                  <StatCard icon={Scale} value={txStats.balance.toLocaleString()} label="ยอดคงเหลือ (บาท)" theme={activeTheme} />
+                  <StatCard icon={List} value={txStats.total} label="รายการทั้งหมด" theme={activeTheme} />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Transaction Form */}
+                  <div id="tx-form-section" className="lg:col-span-1 bg-white p-8 rounded-3xl shadow-xl h-fit">
+                    <h2 className={`text-xl font-bold mb-6 flex items-center gap-2 ${activeTheme.text}`}>
+                      {txForm.id ? <Edit3 size={24} /> : <Plus size={24} />} 
+                      {txForm.id ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}
+                    </h2>
+
+                    <form onSubmit={handleTxSubmit} className="space-y-5">
+                      {/* Type Switcher */}
+                      <div className="flex gap-4">
+                        <label className={`flex-1 flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${txForm.transaction_type === 'income' ? 'border-teal-500 bg-teal-50 text-teal-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                          <input type="radio" name="tx_type" value="income" checked={txForm.transaction_type === 'income'} onChange={() => setTxForm({...txForm, transaction_type: 'income', category: ''})} className="hidden" />
+                          <ArrowUp size={28} className="mb-1" />
+                          <span className="font-bold">รายรับ</span>
+                        </label>
+                        <label className={`flex-1 flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${txForm.transaction_type === 'expense' ? 'border-rose-500 bg-rose-50 text-rose-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                          <input type="radio" name="tx_type" value="expense" checked={txForm.transaction_type === 'expense'} onChange={() => setTxForm({...txForm, transaction_type: 'expense', category: ''})} className="hidden" />
+                          <ArrowDown size={28} className="mb-1" />
+                          <span className="font-bold">รายจ่าย</span>
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">จำนวนเงิน (บาท) <span className="text-red-500">*</span></label>
+                        <input type="number" step="0.01" min="0" required value={txForm.amount} onChange={e => setTxForm({...txForm, amount: e.target.value})} className="w-full p-3 text-lg font-bold border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none transition-all" placeholder="0.00" />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">หมวดหมู่ <span className="text-red-500">*</span></label>
+                        <div className="flex flex-wrap gap-2">
+                          {(txForm.transaction_type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(cat => (
+                            <div 
+                              key={cat} 
+                              onClick={() => setTxForm({...txForm, category: cat})}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium cursor-pointer border-2 transition-all ${txForm.category === cat ? `border-${activeTheme.bg.split('-')[1]}-500 ${activeTheme.bg} text-white` : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'}`}
+                            >
+                              {cat}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">วันที่ <span className="text-red-500">*</span></label>
+                        <input type="date" required value={txForm.transaction_date} onChange={e => setTxForm({...txForm, transaction_date: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl outline-none" />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">รายละเอียด</label>
+                        <input type="text" value={txForm.description} onChange={e => setTxForm({...txForm, description: e.target.value})} className="w-full p-3 border-2 border-slate-200 rounded-xl outline-none" placeholder="เพิ่มรายละเอียด (ตัวเลือก)" />
+                      </div>
+
+                      <div className="pt-2 flex flex-col gap-3">
+                        <button type="submit" className={`w-full py-3 rounded-xl text-white font-bold shadow-lg transition-transform hover:-translate-y-1 bg-gradient-to-r ${activeTheme.start} ${activeTheme.end}`}>
+                          {txForm.id ? 'บันทึกการแก้ไข' : 'เพิ่มรายการ'}
+                        </button>
+                        {txForm.id && (
+                          <div className="flex gap-3">
+                            <button type="button" onClick={resetTxForm} className="flex-1 py-3 rounded-xl bg-slate-200 text-slate-700 font-bold hover:bg-slate-300">
+                              ยกเลิก
+                            </button>
+                            <button type="button" onClick={handleDeleteTx} className="flex-1 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600">
+                              {isConfirmDeleteTx ? 'ยืนยันลบ?' : 'ลบรายการ'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Transaction List */}
+                  <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-xl">
+                    <h2 className={`text-xl font-bold mb-6 flex items-center gap-2 ${activeTheme.text}`}>
+                      <List size={24} /> ประวัติรายการ
+                    </h2>
+
+                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                      {userTransactions.length === 0 ? (
+                        <div className="text-center py-12 text-slate-400">
+                          <Receipt size={64} className="mx-auto mb-4 opacity-30" />
+                          <p className="text-lg">ยังไม่มีรายการบันทึก</p>
+                        </div>
+                      ) : (
+                        [...userTransactions].sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date)).map(tx => (
+                          <div 
+                            key={tx.id} 
+                            onClick={() => handleEditTx(tx)}
+                            className={`flex items-center justify-between p-4 rounded-xl border-l-4 cursor-pointer hover:shadow-md transition-all ${tx.transaction_type === 'income' ? 'bg-slate-50 border-teal-500' : 'bg-slate-50 border-rose-500'}`}
+                          >
+                            <div>
+                              <h4 className="font-bold text-slate-800 text-lg">{tx.category}</h4>
+                              {tx.description && <p className="text-slate-500 text-sm">{tx.description}</p>}
+                              <p className="text-slate-400 text-xs mt-1 flex items-center gap-1">
+                                <Clock size={12} /> {new Date(tx.transaction_date).toLocaleDateString('th-TH')}
+                              </p>
+                            </div>
+                            <div className={`text-xl font-bold ${tx.transaction_type === 'income' ? 'text-teal-600' : 'text-rose-600'}`}>
+                              {tx.transaction_type === 'income' ? '+' : '-'}{Number(tx.amount).toLocaleString()}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {}
+        {activeTab === 'knowledge' && (
+           <div className="animate-fade-in bg-white p-8 md:p-12 rounded-3xl shadow-xl">
+              <div className="text-center max-w-2xl mx-auto mb-12">
+                <h2 className={`text-3xl font-bold mb-4 flex justify-center items-center gap-3 ${activeTheme.text}`}>
+                  <GraduationCap size={36} /> ความรู้พื้นฐานการบริหารเงิน
+                </h2>
+                <p className="text-slate-500 text-lg">แนวคิดและหลักการจัดการเงินที่ทุกคนควรรู้ รวบรวมข้อมูลดีๆเพื่ออนาคตทางการเงินที่ยั่งยืน</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                {/* Knowledge Card 1 */}
+                <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white mb-6 shadow-lg">
+                    <PiggyBank size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">หลัก 6 ขั้นตอน การวางแผนการเงิน</h3>
+                  <ol className="space-y-3 text-slate-600 list-decimal pl-5 marker:font-bold marker:text-indigo-500">
+                    <li><strong className="text-slate-800">วิเคราะห์สถานะการเงิน</strong> - ประเมินรายได้ รายจ่าย</li>
+                    <li><strong className="text-slate-800">กำหนดเป้าหมาย</strong> - ตั้งเป้าหมายระยะสั้น กลาง ยาว</li>
+                    <li><strong className="text-slate-800">จัดลำดับความสำคัญ</strong> - เรียงเป้าหมายตามความจำเป็น</li>
+                    <li><strong className="text-slate-800">วางแผนการลงทุน</strong> - เลือกเครื่องมือที่เหมาะสม</li>
+                    <li><strong className="text-slate-800">ปฏิบัติตามแผน</strong> - ดำเนินการอย่างมีวินัย</li>
+                    <li><strong className="text-slate-800">ติดตามและปรับแผน</strong> - ประเมินผลตามสถานการณ์</li>
+                  </ol>
+                </div>
+
+                {/* Knowledge Card 2 */}
+                <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white mb-6 shadow-lg">
+                    <PieChart size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">หลัก 50/30/20 การแบ่งเงิน</h3>
+                  
+                  <div className="flex h-12 rounded-xl overflow-hidden mb-6 shadow-inner font-bold text-white text-sm">
+                    <div className="bg-indigo-500 w-1/2 flex items-center justify-center">50% จำเป็น</div>
+                    <div className="bg-teal-500 w-[30%] flex items-center justify-center">30% ส่วนตัว</div>
+                    <div className="bg-rose-400 w-[20%] flex items-center justify-center">20% ออม</div>
+                  </div>
+
+                  <ul className="space-y-3 text-slate-600">
+                    <li className="flex gap-2"><span className="text-indigo-500 font-bold">50%</span> <span><strong>จำเป็น</strong> - ค่าที่พัก อาหาร ค่าเดินทาง</span></li>
+                    <li className="flex gap-2"><span className="text-teal-500 font-bold">30%</span> <span><strong>ส่วนตัว</strong> - ความบันเทิง ช้อปปิ้ง ท่องเที่ยว</span></li>
+                    <li className="flex gap-2"><span className="text-rose-400 font-bold">20%</span> <span><strong>ออมลงทุน</strong> - กองทุนฉุกเฉิน ลงทุน</span></li>
+                  </ul>
+                </div>
+
+                {/* Knowledge Card 3 */}
+                <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-400 to-orange-400 flex items-center justify-center text-white mb-6 shadow-lg">
+                    <ShieldAlert size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">กองทุนฉุกเฉิน (Emergency Fund)</h3>
+                  <p className="font-bold text-slate-700 mb-3">ควรมีเท่าไหร่?</p>
+                  <ul className="space-y-2 text-slate-600 mb-6">
+                    <li>• <strong>คนโสด:</strong> 3-6 เดือนของค่าใช้จ่าย</li>
+                    <li>• <strong>มีครอบครัว:</strong> 6-12 เดือนของค่าใช้จ่าย</li>
+                    <li>• <strong>ธุรกิจส่วนตัว:</strong> 12 เดือนขึ้นไป</li>
+                  </ul>
+                  <div className="bg-amber-100 border-l-4 border-amber-500 p-4 rounded-r-xl text-amber-800 flex gap-3">
+                    <AlertCircle className="shrink-0" />
+                    <p className="text-sm"><strong>สำคัญ!</strong> เก็บไว้ในบัญชีที่เข้าถึงได้ง่าย ถอนง่าย ไม่ควรเอาไปลงทุนในสินทรัพย์เสี่ยง</p>
+                  </div>
+                </div>
+
+                {/* Knowledge Card 4 */}
+                <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white mb-6 shadow-lg">
+                    <TrendingUp size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">ช่องทางการลงทุนพื้นฐาน</h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-xl border border-slate-200">
+                      <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-2">เสี่ยงต่ำ</span>
+                      <h4 className="font-bold flex items-center gap-1 mb-1"><Landmark size={16}/> เงินฝาก/พันธบัตร</h4>
+                      <p className="text-xs text-slate-500">ผลตอบแทน 1-3% ต่อปี เหมาะกับเงินฉุกเฉิน</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-slate-200">
+                      <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold mb-2">เสี่ยงปานกลาง</span>
+                      <h4 className="font-bold flex items-center gap-1 mb-1"><Briefcase size={16}/> กองทุนรวม</h4>
+                      <p className="text-xs text-slate-500">ผลตอบแทน 3-8% ต่อปี บริหารโดยผู้เชี่ยวชาญ</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-slate-200 sm:col-span-2">
+                      <span className="inline-block px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-bold mb-2">เสี่ยงสูง</span>
+                      <h4 className="font-bold flex items-center gap-1 mb-1"><TrendingUp size={16}/> หุ้นสามัญ</h4>
+                      <p className="text-xs text-slate-500">ผลตอบแทน 5-15%+ ต่อปี ต้องมีความรู้และติดตามอย่างใกล้ชิด</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-3xl p-8 text-center text-white shadow-xl">
+                <h3 className="text-2xl font-bold mb-3">เริ่มต้นวันนี้!</h3>
+                <p className="opacity-90 max-w-xl mx-auto">การวางแผนการเงินไม่ยาก เริ่มจากการรู้จักรายรับรายจ่ายของตัวเอง ตั้งเป้าหมาย และมีวินัยในการออมและลงทุน</p>
+              </div>
+           </div>
+        )}
+
+        {/* Footer */}
+        <footer className="mt-auto pt-8 pb-4 text-center text-white/80 font-medium">
+          © 2025 KUDSS M35 workingteam | Converted to React
         </footer>
+      </div>
+
+      <Toast {...toast} />
     </div>
-    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMessage">สำเร็จ!</span>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
-
-        // 1. Initialize Firebase with YOUR config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCtHPGTSzHM9PbyYFcYJC0LypgY4UURcUc",
-            authDomain: "aomkunmai-c5f80.firebaseapp.com",
-            databaseURL: "https://aomkunmai-c5f80-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "aomkunmai-c5f80",
-            storageBucket: "aomkunmai-c5f80.firebasestorage.app",
-            messagingSenderId: "58615740840",
-            appId: "1:58615740840:web:314881d2b1ee2e50ed059d",
-            measurementId: "G-C5HFSXR1R1"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
-        let unsubscribeSnapshot = null;
-
-        const defaultConfig = {
-            page_title: "💰 ระบบจัดการการเงินส่วนตัว",
-            welcome_message: "จัดการโปรไฟล์และรายรับรายจ่ายของคุณได้อย่างง่ายดาย (ออนไลน์)",
-            footer_text: "© 2024 ระบบจัดการการเงินส่วนตัว | Made with ❤️",
-            background_color: "#667eea",
-            surface_color: "#ffffff",
-            text_color: "#333333",
-            primary_action_color: "#667eea",
-            secondary_action_color: "#764ba2",
-            font_family: "Mitr",
-            font_size: 16
-        };
-
-        let allData = [];
-        let currentProfile = null;
-        let currentTransaction = null;
-        let selectedUser = null;
-        let isProfileEditMode = false;
-        let isTransactionEditMode = false;
-
-        const incomeCategories = ['เงินเดือน', 'โบนัส', 'ขายของ', 'ดอกเบี้ย', 'ลงทุน', 'อื่นๆ'];
-        const expenseCategories = ['อาหาร', 'ค่าเดินทาง', 'ค่าบ้าน', 'ช้อปปิ้ง', 'สุขภาพ', 'บันเทิง', 'การศึกษา', 'อื่นๆ'];
-
-        const dataHandler = {
-            onDataChanged(data) {
-                allData = data;
-                const profiles = data.filter(item => item.type === 'profile');
-                const transactions = data.filter(item => item.type === 'transaction');
-
-                renderProfileList(profiles);
-                updateProfileStats(profiles);
-                checkProfileLimit(profiles.length);
-
-                updateUserSelector(profiles);
-
-                if (selectedUser) {
-                    const userTransactions = transactions.filter(t => t.user_id === selectedUser);
-                    renderTransactionList(userTransactions);
-                    updateTransactionStats(userTransactions);
-                    checkTransactionLimit(transactions.length);
-                }
-            }
-        };
-
-        // Firestore Realtime Listener
-        function setupRealtimeListener(user) {
-            if (unsubscribeSnapshot) unsubscribeSnapshot();
-
-            // Path: users/{uid}/finance_data
-            const q = query(collection(db, 'users', user.uid, 'finance_data'));
-
-            unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
-                const data = [];
-                snapshot.forEach((doc) => {
-                    data.push({ ...doc.data(), __backendId: doc.id });
-                });
-                dataHandler.onDataChanged(data);
-            }, (error) => {
-                console.error("Error fetching data: ", error);
-                showToast('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
-            });
-        }
-
-        function renderProfileList(profiles) {
-            const listContainer = document.getElementById('profileList');
-
-            if (profiles.length === 0) {
-                listContainer.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-user-plus"></i>
-            <p>ยังไม่มีโปรไฟล์ กดปุ่มด้านบนเพื่อสร้าง</p>
-          </div>
-        `;
-                return;
-            }
-
-            listContainer.innerHTML = profiles.map(profile => `
-        <div class="profile-item ${currentProfile && currentProfile.__backendId === profile.__backendId ? 'active' : ''}" 
-             data-id="${profile.__backendId}">
-          <h3><i class="fas fa-user"></i> ${profile.username}</h3>
-          <p>${profile.full_name || 'ไม่ระบุชื่อ'}</p>
-          <p style="font-size: 0.8rem; opacity: 0.7;">
-            <i class="fas fa-clock"></i> ${new Date(profile.updatedAt).toLocaleDateString('th-TH')}
-          </p>
-        </div>
-      `).join('');
-
-            document.querySelectorAll('.profile-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const profileId = item.dataset.id;
-                    const profile = profiles.find(p => p.__backendId === profileId);
-                    if (profile) {
-                        loadProfile(profile);
-                    }
-                });
-            });
-        }
-
-        function updateProfileStats(profiles) {
-            document.getElementById('totalProfiles').textContent = profiles.length;
-            const activeUsers = profiles.filter(p => p.notifications).length;
-            document.getElementById('activeUsers').textContent = activeUsers;
-        }
-
-        function checkProfileLimit(count) {
-            const warning = document.getElementById('profileLimitWarning');
-            const newBtn = document.getElementById('newProfileBtn');
-
-            if (count >= 999) {
-                warning.classList.add('show');
-                newBtn.disabled = true;
-            } else {
-                warning.classList.remove('show');
-                newBtn.disabled = false;
-            }
-        }
-
-        function updateUserSelector(profiles) {
-            const selector = document.getElementById('userSelector');
-            const selectorSection = document.getElementById('userSelectorSection');
-            const noUserSelected = document.getElementById('noUserSelected');
-            const transactionStats = document.getElementById('transactionStats');
-            const transactionContent = document.getElementById('transactionContent');
-
-            if (profiles.length === 0) {
-                selectorSection.style.display = 'none';
-                noUserSelected.style.display = 'block';
-                transactionStats.style.display = 'none';
-                transactionContent.style.display = 'none';
-                return;
-            }
-
-            selectorSection.style.display = 'block';
-            noUserSelected.style.display = 'none';
-
-            // Keep current selection if valid
-            const currentVal = selector.value;
-
-            selector.innerHTML = '<option value="">-- กรุณาเลือกผู้ใช้ --</option>' +
-                profiles.map(p => `<option value="${p.id}">${p.username} ${p.full_name ? '(' + p.full_name + ')' : ''}</option>`).join('');
-
-            if (currentVal && profiles.some(p => p.id === currentVal)) {
-                selector.value = currentVal;
-            } else if (selectedUser) {
-                selector.value = selectedUser;
-            }
-
-            if (selector.value) {
-                selectedUser = selector.value; // Ensure sync
-                transactionStats.style.display = 'grid';
-                transactionContent.style.display = 'block';
-            } else {
-                transactionStats.style.display = 'none';
-                transactionContent.style.display = 'none';
-            }
-        }
-
-        function renderTransactionList(transactions) {
-            const listContainer = document.getElementById('transactionList');
-
-            if (transactions.length === 0) {
-                listContainer.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-receipt"></i>
-            <p>ยังไม่มีรายการ กดปุ่มด้านบนเพื่อเพิ่ม</p>
-          </div>
-        `;
-                return;
-            }
-
-            const sortedTransactions = [...transactions].sort((a, b) =>
-                new Date(b.date) - new Date(a.date)
-            );
-
-            listContainer.innerHTML = sortedTransactions.map(trans => `
-        <div class="transaction-item ${trans.transaction_type} ${currentTransaction && currentTransaction.__backendId === trans.__backendId ? 'active' : ''}" 
-             data-id="${trans.__backendId}">
-          <div class="transaction-info">
-            <h4>
-              <i class="fas fa-tag"></i> ${trans.category}
-              ${trans.transaction_type === 'income' ? '<span style="color: #38ef7d;">รายรับ</span>' : '<span style="color: #ff6b6b;">รายจ่าย</span>'}
-            </h4>
-            <p>${trans.description || 'ไม่มีรายละเอียด'}</p>
-            <p><i class="fas fa-calendar"></i> ${new Date(trans.date).toLocaleDateString('th-TH')}</p>
-          </div>
-          <div class="transaction-amount ${trans.transaction_type}">
-            ${trans.transaction_type === 'income' ? '+' : '-'}${parseFloat(trans.amount).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
-          </div>
-        </div>
-      `).join('');
-
-            document.querySelectorAll('.transaction-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const transId = item.dataset.id;
-                    const trans = transactions.find(t => t.__backendId === transId);
-                    if (trans) {
-                        loadTransaction(trans);
-                    }
-                });
-            });
-        }
-
-        function updateTransactionStats(transactions) {
-            const income = transactions
-                .filter(t => t.transaction_type === 'income')
-                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-            const expense = transactions
-                .filter(t => t.transaction_type === 'expense')
-                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-            const balance = income - expense;
-
-            document.getElementById('totalIncome').textContent = income.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-            document.getElementById('totalExpense').textContent = expense.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-            document.getElementById('balance').textContent = balance.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-            document.getElementById('totalTransactions').textContent = transactions.length;
-        }
-
-        function checkTransactionLimit(count) {
-            const warning = document.getElementById('transactionLimitWarning');
-            const newBtn = document.getElementById('newTransactionBtn');
-
-            if (count >= 999) {
-                warning.classList.add('show');
-                newBtn.disabled = true;
-            } else {
-                warning.classList.remove('show');
-                newBtn.disabled = false;
-            }
-        }
-
-        function loadProfile(profile) {
-            currentProfile = profile;
-            isProfileEditMode = true;
-
-            document.getElementById('username').value = profile.username || '';
-            document.getElementById('fullName').value = profile.full_name || '';
-            document.getElementById('email').value = profile.email || '';
-            document.getElementById('phone').value = profile.phone || '';
-            document.getElementById('bio').value = profile.bio || '';
-            document.getElementById('theme').value = profile.theme || 'light';
-            document.getElementById('notifications').checked = profile.notifications || false;
-
-            document.querySelectorAll('.theme-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.theme === profile.theme) {
-                    option.classList.add('selected');
-                }
-            });
-
-            document.getElementById('profileFormTitle').innerHTML = '<i class="fas fa-user-edit"></i> แก้ไขโปรไฟล์';
-            document.getElementById('profileSubmitBtn').innerHTML = '<i class="fas fa-save"></i> บันทึกการแก้ไข';
-            document.getElementById('profileCancelBtn').style.display = 'inline-flex';
-            document.getElementById('profileDeleteBtn').style.display = 'inline-flex';
-
-            // Re-render list to show active state
-            renderProfileList(allData.filter(item => item.type === 'profile'));
-        }
-
-        function loadTransaction(trans) {
-            currentTransaction = trans;
-            isTransactionEditMode = true;
-
-            const transType = trans.transaction_type;
-            document.querySelectorAll('.radio-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.type === transType) {
-                    option.classList.add('selected');
-                    option.querySelector('input').checked = true;
-                }
-            });
-
-            document.getElementById('amount').value = trans.amount;
-            document.getElementById('category').value = trans.category;
-            document.getElementById('description').value = trans.description || '';
-            document.getElementById('transactionDate').value = trans.date;
-
-            updateCategoryOptions(transType);
-            document.querySelectorAll('.category-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.category === trans.category) {
-                    option.classList.add('selected');
-                }
-            });
-
-            document.getElementById('transactionFormTitle').innerHTML = '<i class="fas fa-edit"></i> แก้ไขรายการ';
-            document.getElementById('transactionSubmitBtn').innerHTML = '<i class="fas fa-save"></i> บันทึกการแก้ไข';
-            document.getElementById('transactionCancelBtn').style.display = 'inline-flex';
-            document.getElementById('transactionDeleteBtn').style.display = 'inline-flex';
-
-            // Re-render list to show active state
-            renderTransactionList(allData.filter(item => item.type === 'transaction' && item.user_id === selectedUser));
-        }
-
-        function resetProfileForm() {
-            currentProfile = null;
-            isProfileEditMode = false;
-
-            document.getElementById('profileForm').reset();
-            document.getElementById('theme').value = 'light';
-
-            document.querySelectorAll('.theme-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.theme === 'light') {
-                    option.classList.add('selected');
-                }
-            });
-
-            document.getElementById('profileFormTitle').innerHTML = '<i class="fas fa-user-edit"></i> โปรไฟล์ผู้ใช้ใหม่';
-            document.getElementById('profileSubmitBtn').innerHTML = '<i class="fas fa-save"></i> บันทึก';
-            document.getElementById('profileCancelBtn').style.display = 'none';
-            document.getElementById('profileDeleteBtn').style.display = 'none';
-
-            renderProfileList(allData.filter(item => item.type === 'profile'));
-        }
-
-        function resetTransactionForm() {
-            currentTransaction = null;
-            isTransactionEditMode = false;
-
-            document.getElementById('transactionForm').reset();
-            document.querySelectorAll('.radio-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.querySelector('.radio-option[data-type="income"]').classList.add('selected');
-
-            updateCategoryOptions('income');
-
-            document.getElementById('transactionFormTitle').innerHTML = '<i class="fas fa-plus"></i> เพิ่มรายการใหม่';
-            document.getElementById('transactionSubmitBtn').innerHTML = '<i class="fas fa-save"></i> บันทึก';
-            document.getElementById('transactionCancelBtn').style.display = 'none';
-            document.getElementById('transactionDeleteBtn').style.display = 'none';
-
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('transactionDate').value = today;
-
-            if (selectedUser) {
-                renderTransactionList(allData.filter(item => item.type === 'transaction' && item.user_id === selectedUser));
-            }
-        }
-
-        function updateCategoryOptions(type) {
-            const categories = type === 'income' ? incomeCategories : expenseCategories;
-            const grid = document.getElementById('categoryGrid');
-
-            grid.innerHTML = categories.map(cat => `
-        <div class="category-option" data-category="${cat}">
-          ${cat}
-        </div>
-      `).join('');
-
-            document.querySelectorAll('.category-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    document.querySelectorAll('.category-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    option.classList.add('selected');
-                    document.getElementById('category').value = option.dataset.category;
-                });
-            });
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const icon = toast.querySelector('i');
-
-            toastMessage.textContent = message;
-            toast.className = `toast ${type} show`;
-
-            if (type === 'success') {
-                icon.className = 'fas fa-check-circle';
-            } else {
-                icon.className = 'fas fa-exclamation-circle';
-            }
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2);
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
-
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                switchTab(tab.dataset.tab);
-            });
-        });
-
-        document.getElementById('newProfileBtn').addEventListener('click', () => {
-            resetProfileForm();
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        });
-
-        document.getElementById('profileCancelBtn').addEventListener('click', () => {
-            resetProfileForm();
-        });
-
-        document.querySelectorAll('.theme-option').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.theme-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                option.classList.add('selected');
-                document.getElementById('theme').value = option.dataset.theme;
-            });
-        });
-
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!currentUser) {
-                showToast('กรุณาล็อกอินก่อน', 'error');
-                return;
-            }
-
-            const submitBtn = document.getElementById('profileSubmitBtn');
-            const originalContent = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span> กำลังบันทึก...';
-
-            const formData = {
-                type: 'profile',
-                username: document.getElementById('username').value.trim(),
-                full_name: document.getElementById('fullName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                bio: document.getElementById('bio').value.trim(),
-                theme: document.getElementById('theme').value,
-                notifications: document.getElementById('notifications').checked,
-                updatedAt: new Date().toISOString()
-            };
-
-            if (!formData.username) {
-                showToast('กรุณากรอกชื่อผู้ใช้', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalContent;
-                return;
-            }
-
-            try {
-                const collectionRef = collection(db, 'users', currentUser.uid, 'finance_data');
-
-                if (isProfileEditMode && currentProfile) {
-                    const updatedProfile = {
-                        ...currentProfile,
-                        ...formData
-                    };
-
-                    // Remove __backendId from data to be saved
-                    const { __backendId, ...dataToSave } = updatedProfile;
-
-                    await updateDoc(doc(db, 'users', currentUser.uid, 'finance_data', __backendId), dataToSave);
-                    showToast('แก้ไขโปรไฟล์สำเร็จ!', 'success');
-                    resetProfileForm();
-
-                } else {
-                    const profiles = allData.filter(item => item.type === 'profile');
-                    if (profiles.length >= 999) {
-                        showToast('ถึงขีดจำกัด 999 โปรไฟล์แล้ว', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalContent;
-                        return;
-                    }
-
-                    const newProfile = {
-                        id: generateId(), // Internal ID for linking
-                        ...formData,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    await addDoc(collectionRef, newProfile);
-                    showToast('สร้างโปรไฟล์สำเร็จ!', 'success');
-                    resetProfileForm();
-                }
-            } catch (error) {
-                console.error(error);
-                showToast('เกิดข้อผิดพลาด: ' + error.message, 'error');
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalContent;
-        });
-
-        document.getElementById('profileDeleteBtn').addEventListener('click', async () => {
-            if (!currentProfile || !currentUser) return;
-
-            const deleteBtn = document.getElementById('profileDeleteBtn');
-            const originalContent = deleteBtn.innerHTML;
-
-            if (deleteBtn.dataset.confirmDelete === 'true') {
-                deleteBtn.disabled = true;
-                deleteBtn.innerHTML = '<span class="loading"></span> กำลังลบ...';
-
-                try {
-                    await deleteDoc(doc(db, 'users', currentUser.uid, 'finance_data', currentProfile.__backendId));
-
-                    showToast('ลบโปรไฟล์สำเร็จ!', 'success');
-                    resetProfileForm();
-
-                    if (selectedUser === currentProfile.id) {
-                        selectedUser = null;
-                        document.getElementById('userSelector').value = '';
-                    }
-                } catch (error) {
-                    console.error(error);
-                    showToast('เกิดข้อผิดพลาด: ' + error.message, 'error');
-                }
-
-                deleteBtn.disabled = false;
-                deleteBtn.innerHTML = originalContent;
-                delete deleteBtn.dataset.confirmDelete;
-            } else {
-                deleteBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ยืนยันการลบ?';
-                deleteBtn.dataset.confirmDelete = 'true';
-
-                setTimeout(() => {
-                    deleteBtn.innerHTML = originalContent;
-                    delete deleteBtn.dataset.confirmDelete;
-                }, 3000);
-            }
-        });
-
-        document.getElementById('userSelector').addEventListener('change', (e) => {
-            selectedUser = e.target.value;
-
-            if (selectedUser) {
-                const transactions = allData.filter(item => item.type === 'transaction' && item.user_id === selectedUser);
-                renderTransactionList(transactions);
-                updateTransactionStats(transactions);
-
-                document.getElementById('transactionStats').style.display = 'grid';
-                document.getElementById('transactionContent').style.display = 'block';
-
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('transactionDate').value = today;
-                updateCategoryOptions('income');
-            } else {
-                document.getElementById('transactionStats').style.display = 'none';
-                document.getElementById('transactionContent').style.display = 'none';
-            }
-
-            resetTransactionForm();
-        });
-
-        document.getElementById('newTransactionBtn').addEventListener('click', () => {
-            resetTransactionForm();
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        });
-
-        document.getElementById('transactionCancelBtn').addEventListener('click', () => {
-            resetTransactionForm();
-        });
-
-        document.querySelectorAll('.radio-option').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.radio-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                option.classList.add('selected');
-                option.querySelector('input').checked = true;
-
-                const type = option.dataset.type;
-                updateCategoryOptions(type);
-                document.getElementById('category').value = '';
-            });
-        });
-
-        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!currentUser) {
-                showToast('กรุณาล็อกอินก่อน', 'error');
-                return;
-            }
-
-            if (!selectedUser) {
-                showToast('กรุณาเลือกผู้ใช้ก่อน', 'error');
-                return;
-            }
-
-            const submitBtn = document.getElementById('transactionSubmitBtn');
-            const originalContent = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span> กำลังบันทึก...';
-
-            const transactionType = document.querySelector('input[name="transactionType"]:checked').value;
-            const amount = document.getElementById('amount').value;
-            const category = document.getElementById('category').value;
-            const date = document.getElementById('transactionDate').value;
-
-            if (!amount || parseFloat(amount) <= 0) {
-                showToast('กรุณากรอกจำนวนเงินที่ถูกต้อง', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalContent;
-                return;
-            }
-
-            if (!category) {
-                showToast('กรุณาเลือกหมวดหมู่', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalContent;
-                return;
-            }
-
-            const formData = {
-                type: 'transaction',
-                user_id: selectedUser,
-                transaction_type: transactionType,
-                amount: parseFloat(amount),
-                category: category,
-                description: document.getElementById('description').value.trim(),
-                date: date,
-                updatedAt: new Date().toISOString()
-            };
-
-            try {
-                if (isTransactionEditMode && currentTransaction) {
-                    const updatedTransaction = {
-                        ...currentTransaction,
-                        ...formData
-                    };
-
-                    const { __backendId, ...dataToSave } = updatedTransaction;
-
-                    await updateDoc(doc(db, 'users', currentUser.uid, 'finance_data', __backendId), dataToSave);
-                    showToast('แก้ไขรายการสำเร็จ!', 'success');
-                    resetTransactionForm();
-
-                } else {
-                    if (allData.length >= 999) {
-                        showToast('ถึงขีดจำกัด 999 รายการแล้ว', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalContent;
-                        return;
-                    }
-
-                    const newTransaction = {
-                        id: generateId(),
-                        ...formData,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    await addDoc(collection(db, 'users', currentUser.uid, 'finance_data'), newTransaction);
-                    showToast('เพิ่มรายการสำเร็จ!', 'success');
-                    resetTransactionForm();
-                }
-            } catch (error) {
-                console.error(error);
-                showToast('เกิดข้อผิดพลาด: ' + error.message, 'error');
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalContent;
-        });
-
-        document.getElementById('transactionDeleteBtn').addEventListener('click', async () => {
-            if (!currentTransaction || !currentUser) return;
-
-            const deleteBtn = document.getElementById('transactionDeleteBtn');
-            const originalContent = deleteBtn.innerHTML;
-
-            if (deleteBtn.dataset.confirmDelete === 'true') {
-                deleteBtn.disabled = true;
-                deleteBtn.innerHTML = '<span class="loading"></span> กำลังลบ...';
-
-                try {
-                    await deleteDoc(doc(db, 'users', currentUser.uid, 'finance_data', currentTransaction.__backendId));
-
-                    showToast('ลบรายการสำเร็จ!', 'success');
-                    resetTransactionForm();
-                } catch (error) {
-                    console.error(error);
-                    showToast('เกิดข้อผิดพลาด: ' + error.message, 'error');
-                }
-
-                deleteBtn.disabled = false;
-                deleteBtn.innerHTML = originalContent;
-                delete deleteBtn.dataset.confirmDelete;
-            } else {
-                deleteBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ยืนยันการลบ?';
-                deleteBtn.dataset.confirmDelete = 'true';
-
-                setTimeout(() => {
-                    deleteBtn.innerHTML = originalContent;
-                    delete deleteBtn.dataset.confirmDelete;
-                }, 3000);
-            }
-        });
-
-        async function onConfigChange(config) {
-            const customFont = config.font_family || defaultConfig.font_family;
-            const baseFontStack = 'sans-serif';
-            const baseSize = config.font_size || defaultConfig.font_size;
-
-            document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
-            document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${config.secondary_action_color || defaultConfig.secondary_action_color} 100%)`;
-
-            document.getElementById('pageTitle').textContent = config.page_title || defaultConfig.page_title;
-            document.getElementById('pageTitle').style.fontSize = `${baseSize * 2}px`;
-            document.getElementById('pageTitle').style.color = config.primary_action_color || defaultConfig.primary_action_color;
-
-            document.getElementById('welcomeMessage').textContent = config.welcome_message || defaultConfig.welcome_message;
-            document.getElementById('welcomeMessage').style.fontSize = `${baseSize * 1.1}px`;
-            document.getElementById('welcomeMessage').style.color = config.text_color || defaultConfig.text_color;
-
-            document.getElementById('footerText').textContent = config.footer_text || defaultConfig.footer_text;
-            document.getElementById('footerText').style.fontSize = `${baseSize * 0.9}px`;
-
-            document.querySelectorAll('.card').forEach(card => {
-                card.style.background = config.surface_color || defaultConfig.surface_color;
-            });
-
-            document.querySelectorAll('.card h2').forEach(h2 => {
-                h2.style.color = config.primary_action_color || defaultConfig.primary_action_color;
-                h2.style.fontSize = `${baseSize * 1.5}px`;
-            });
-
-            document.querySelectorAll('.btn').forEach(btn => {
-                if (!btn.classList.contains('btn-secondary') && !btn.classList.contains('btn-danger') && !btn.classList.contains('btn-success')) {
-                    btn.style.background = `linear-gradient(135deg, ${config.primary_action_color || defaultConfig.primary_action_color} 0%, ${config.secondary_action_color || defaultConfig.secondary_action_color} 100%)`;
-                }
-                btn.style.fontSize = `${baseSize}px`;
-            });
-
-            document.querySelectorAll('label, input, textarea, select').forEach(el => {
-                el.style.fontSize = `${baseSize}px`;
-                el.style.color = config.text_color || defaultConfig.text_color;
-            });
-        }
-
-        if (window.elementSdk) {
-            window.elementSdk.init({
-                defaultConfig,
-                onConfigChange,
-                mapToCapabilities: (config) => ({
-                    recolorables: [
-                        {
-                            get: () => config.background_color || defaultConfig.background_color,
-                            set: (value) => {
-                                config.background_color = value;
-                                window.elementSdk.setConfig({ background_color: value });
-                            }
-                        },
-                        {
-                            get: () => config.surface_color || defaultConfig.surface_color,
-                            set: (value) => {
-                                config.surface_color = value;
-                                window.elementSdk.setConfig({ surface_color: value });
-                            }
-                        },
-                        {
-                            get: () => config.text_color || defaultConfig.text_color,
-                            set: (value) => {
-                                config.text_color = value;
-                                window.elementSdk.setConfig({ text_color: value });
-                            }
-                        },
-                        {
-                            get: () => config.primary_action_color || defaultConfig.primary_action_color,
-                            set: (value) => {
-                                config.primary_action_color = value;
-                                window.elementSdk.setConfig({ primary_action_color: value });
-                            }
-                        },
-                        {
-                            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
-                            set: (value) => {
-                                config.secondary_action_color = value;
-                                window.elementSdk.setConfig({ secondary_action_color: value });
-                            }
-                        }
-                    ],
-                    borderables: [],
-                    fontEditable: {
-                        get: () => config.font_family || defaultConfig.font_family,
-                        set: (value) => {
-                            config.font_family = value;
-                            window.elementSdk.setConfig({ font_family: value });
-                        }
-                    },
-                    fontSizeable: {
-                        get: () => config.font_size || defaultConfig.font_size,
-                        set: (value) => {
-                            config.font_size = value;
-                            window.elementSdk.setConfig({ font_size: value });
-                        }
-                    }
-                }),
-                mapToEditPanelValues: (config) => new Map([
-                    ["page_title", config.page_title || defaultConfig.page_title],
-                    ["welcome_message", config.welcome_message || defaultConfig.welcome_message],
-                    ["footer_text", config.footer_text || defaultConfig.footer_text]
-                ])
-            });
-        }
-
-        async function initAuth() {
-            try {
-                // FIX: ข้ามการใช้ __initial_auth_token เพราะ config เป็นของโปรเจกต์ส่วนตัว ไม่ใช่ของระบบ
-                // เราจะใช้ signInAnonymously แทน
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Auth Error:", error);
-                let msg = 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message;
-                if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/configuration-not-found') {
-                    msg = 'กรุณาเปิดใช้งาน Anonymous Auth ใน Firebase Console ก่อนนะครับ';
-                }
-                showToast(msg, 'error');
-            }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                console.log("User authenticated:", user.uid);
-                setupRealtimeListener(user);
-            } else {
-                currentUser = null;
-                if (unsubscribeSnapshot) unsubscribeSnapshot();
-            }
-        });
-
-        // Start Auth
-        initAuth();
-
-        // Initialize Date
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('transactionDate').value = today;
-        updateCategoryOptions('income');
-    </script>
-</body>
-
-</html>
+  );
+}
